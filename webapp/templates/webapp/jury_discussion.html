@@ -1,0 +1,114 @@
+{% extends 'webapp/base.html' %}
+{% block title %}Jury Discussion • DJN{% endblock %}
+
+{% block content %}
+<div class="chatShell">
+  {% if gdocs_last_url %}
+  <div class="card mt12">
+    ✅ Shared to Google Docs —
+    <a href="{{ gdocs_last_url }}" target="_blank" rel="noopener">Open Doc</a>
+  </div>
+  {% endif %}
+
+  <div class="chatMsgs">
+    {% if not chat %}
+    <div class="chatEmpty">
+      <div class="chatEmptyIcon">💬</div>
+      <div class="h2">Start a Conversation</div>
+      <p class="p">Ask your query and DJN will coordinate multiple AI models to provide a well-reasoned answer.</p>
+    </div>
+    {% else %}
+    {% for m in chat %}
+    <div class="msgRow {% if m.role == 'user' %} right {% else %} left {% endif %}">
+      <div class="msg {% if m.role == 'user' %} user {% else %} assistant {% endif %}">
+        <div class="row between itemsCenter gap10">
+          <div class="role mb0">
+            {% if m.role == 'user' %}
+            You
+            {% else %}
+            DJN Assistant
+            {% endif %}
+          </div>
+
+          {% if m.role != 'user' %}
+          <div class="row gap8 itemsCenter">
+            <button type="button" class="btn-copy"
+              data-copy-target="#msgText{{ forloop.counter }}"
+              onclick="djnCopyFromTarget(this)">Copy</button>
+
+            {% if forloop.counter == last_final_idx %}
+              <form method="post" action="{% url 'gdocs_share' %}">
+                {% csrf_token %}
+                <input type="hidden" name="msg_idx" value="{{ last_final_idx }}">
+                <button type="submit" class="btn-copy">Share</button>
+              </form>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div id="msgText{{ forloop.counter }}" class="text">{{ m.text|linebreaksbr }}</div>
+
+        {% if state == "need_clarify" and m.role != "user" and forloop.counter == last_assistant_idx %}
+        <div class="row gap10 mt10">
+          <form method="post" action="{% url 'jury_discussion' %}">
+            {% csrf_token %}
+            <input type="hidden" name="message" value="skip" />
+            <button class="btn ghost" type="submit">Skip</button>
+          </form>
+        </div>
+        {% endif %}
+
+        {% if run_id and m.role != 'user' and forloop.counter == last_final_idx %}
+        <div class="row gap10 mt10">
+          {% if feedback_value == 1 %}
+          <button class="btn" type="button" disabled>👍 Helpful</button>
+          {% elif feedback_value == -1 %}
+          <button class="btn ghost" type="button" disabled>👎 Not helpful</button>
+          {% else %}
+          <form method="post" action="{% url 'jury_feedback' %}">
+            {% csrf_token %}
+            <input type="hidden" name="run_id" value="{{ run_id }}" />
+            <input type="hidden" name="value" value="up" />
+            <button class="btn" type="submit">👍 Helpful</button>
+          </form>
+
+          <form method="post" action="{% url 'jury_feedback' %}">
+            {% csrf_token %}
+            <input type="hidden" name="run_id" value="{{ run_id }}" />
+            <input type="hidden" name="value" value="down" />
+            <button class="btn ghost" type="submit">👎 Not helpful</button>
+          </form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="chatComposer">
+    <div class="chatComposerInner">
+      <form class="chatComposerForm" method="post" action="{% url 'jury_discussion' %}">
+        {% csrf_token %}
+        <textarea class="modernChatInput" name="message" placeholder="Ask your question..." rows="1" autocomplete="off"
+          onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();this.form.submit();}"></textarea>
+
+        <button type="submit" class="sendBtn">Send</button>
+      </form>
+
+      <form method="post" action="{% url 'jury_clear' %}">
+        {% csrf_token %}
+        <button class="clearBtn" type="submit">Clear</button>
+      </form>
+    </div>
+
+    <div class="chatComposerHint">
+      <small class="chatHintText">
+        State: <strong>{{ state }}</strong> • Press Enter to send, Shift+Enter for new line
+      </small>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "webapp/base.html" %}
+{% block title %}Home • DJN{% endblock %}
+
+{% block content %}
+<div class="card"
+  style="background: linear-gradient(135deg, #5b7fff 0%, #7c3aed 100%); color: white; text-align: center; padding: 3rem 2rem; margin-bottom: 2rem; border: none;">
+  <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">
+    Dynamic Jury Network
+  </div>
+  <p style="font-size: 1.125rem; max-width: 700px; margin: 0 auto; line-height: 1.7; opacity: 0.95;">
+    An adaptive multi-agent reasoning system that mimics jury-style deliberation to enhance
+    decision quality in AI-assisted problem solving.
+  </p>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="h2" style="text-align: center; margin-bottom: 0.5rem;">How DJN Works</div>
+  <p class="p" style="text-align: center; margin-bottom: 2rem;">
+    Multiple LLMs deliberate as jurors, coordinated by a Moderator/Judge to converge on reliable decisions.
+  </p>
+
+  <div class="grid2">
+    <div class="card" style="border-left: 3px solid var(--accent-primary);">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+      <div class="h3">Problem Statement</div>
+      <p class="p">
+        Single AI models often produce confident yet inconsistent or biased responses,
+        especially for complex or ambiguous queries. There is a lack of structured mechanisms
+        to validate, critique, and consolidate multiple AI opinions into a reliable outcome.
+      </p>
+    </div>
+
+    <div class="card" style="border-left: 3px solid var(--accent-secondary);">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+      <div class="h3">Existing Solutions & Drawbacks</div>
+      <p class="p">
+        Existing AI systems typically rely on a single model or naive ensemble averaging.
+        These approaches suffer from limited transparency, lack of debate, no consensus metrics,
+        and an inability to explain disagreements between models.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h2" style="text-align: center; margin-bottom: 2rem;">Our Solution</div>
+
+  <div class="grid2">
+    <div class="card" style="background: var(--bg-elevated); border-left: 3px solid var(--success);">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">💡</div>
+      <div class="h3">Proposed Solution</div>
+      <p class="p">
+        DJN introduces a structured multi-round deliberation framework where multiple LLMs
+        independently reason, critique each other's responses, and iteratively converge toward
+        a consensus under the supervision of a Moderator/Judge.
+      </p>
+    </div>
+
+    <div class="card" style="background: var(--bg-elevated); border-left: 3px solid var(--success);">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">✨</div>
+      <div class="h3">Merits of DJN</div>
+      <p class="p" style="margin-bottom: 0;">
+        <strong>✓ Improved decision reliability</strong> through consensus<br />
+        <strong>✓ Transparent reasoning</strong> and disagreement tracking<br />
+        <strong>✓ Adaptive juror selection</strong> based on performance<br />
+        <strong>✓ Suitable for high-stakes</strong> decision support systems
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="card"
+  style="margin-top: 2rem; text-align: center; background: var(--bg-tertiary); border: 2px dashed var(--border-medium);">
+  <div class="h3">Ready to Get Started?</div>
+  <p class="p" style="margin-bottom: 1rem;">
+    Try the jury discussion interface and see multi-agent deliberation in action.
+  </p>
+  <a href="/jury/" class="btn" style="display: inline-block; text-decoration: none;">
+    Launch Jury Discussion →
+  </a>
+</div>
+{% endblock %}

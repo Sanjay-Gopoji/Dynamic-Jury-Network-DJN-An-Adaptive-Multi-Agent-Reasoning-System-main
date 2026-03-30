@@ -1,0 +1,124 @@
+{% extends "webapp/base.html" %}
+{% load djn_extras %}
+{% block title %}History • DJN{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="row between itemsCenter gap12">
+    <div class="h1">History</div>
+    <div class="muted12">Latest runs</div>
+  </div>
+
+  {% if not runs %}
+  <p class="p mt12">No runs logged yet.</p>
+  {% else %}
+  <div class="stack12 mt12">
+    {% for r in runs %}
+    <div class="card runCard">
+      <div class="row between gap12 itemsStart">
+        <div class="flex1">
+          <div class="runTs">
+            {{ r.ts_utc|default:"(no timestamp)" }}
+          </div>
+
+          <div class="muted13">
+            Stop: <b>{{ r.run_stop.stop_reason|default:"-" }}</b>
+            • Rounds: <b>{{ r.rounds|length }}</b>
+            • Agreement(last): <b>{{ r.run_metrics.agreement_last_round|default:"-" }}</b>
+          </div>
+
+          <div class="muted13 mt6">
+            Category: <b>{{ r.category|default:"general" }}</b>
+            {% if r.category_confidence is not None %}
+            • Cat-Conf: <b>{{ r.category_confidence }}</b>
+            {% endif %}
+          </div>
+
+          {% if r.missing_fields and r.missing_fields|length %}
+          <div class="muted13 mt6">
+            Missing: <b>{{ r.missing_fields|join:", " }}</b>
+          </div>
+          {% endif %}
+
+          <div class="roster mt8">
+            <span class="mutedText">Roster:</span>
+            {% if r.jury_roster and r.jury_roster|length %}
+            <div class="pillWrap mt6">
+              {% for j in r.jury_roster %}
+              <span class="pill">
+                <b>{{ j.juror_id }}</b>
+                {% if r.role_map %}
+                ({{ r.role_map|get_item:j.juror_id|default:"" }})
+                {% endif %}
+                : {{ j.model_id|default:"" }}
+              </span>
+              {% endfor %}
+            </div>
+            {% else %}
+            <span class="mutedText">-</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <button type="button" class="btn-copy" data-copy-target="#final{{ forloop.counter }}"
+          onclick="djnCopyFromTarget(this)">
+          Copy
+        </button>
+      </div>
+
+      <div class="mt10">
+        <div class="label">Raw Query (User Input)</div>
+        <div class="pre">{{ r.q_raw|default:"" }}</div>
+
+        <div class="label">Final Query (Sent to Jurors)</div>
+        <div class="pre">{% firstof r.q_final r.query "" %}</div>
+      </div>
+
+      <div class="mt12">
+        <div class="label">Rounds</div>
+
+        {% if r.rounds and r.rounds|length %}
+        <div class="stack8">
+          {% for rd in r.rounds %}
+          <div class="roundBox">
+            <div class="muted13">
+              Round <b>{{ rd.round|default:forloop.counter }}</b>
+              • Agreement: <b>{{ rd.agreement_score|floatformat:2|default:"-" }}</b>
+              • Majority: <b>{{ rd.majority_label|default:"-" }}</b>
+            </div>
+
+            {% if rd.outputs and rd.outputs|length %}
+            <div class="pillWrap mt8">
+              {% for j in rd.outputs %}
+              <span class="pill">
+                <b>{{ j.juror_id|default:"J?" }}</b>
+                {% if j.role %}
+                ({{ j.role }})
+                {% elif r.role_map and j.juror_id %}
+                ({{ r.role_map|get_item:j.juror_id|default:"" }})
+                {% endif %}
+                : {{ j.verdict_label|default:"-" }}
+              </span>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="muted12 mt8">No juror details for this round.</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="muted12">No round data.</div>
+        {% endif %}
+      </div>
+
+      <div class="mt12">
+        <div class="label">Final Response</div>
+        <pre id="final{{ forloop.counter }}" class="pre pre0">{{ r.final_display|default:"" }}</pre>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
